@@ -416,17 +416,6 @@ void tttgame::computer_cm()
 }
 
 
-void print_queue(std::queue<int> q)
-{
-  while (!q.empty())
-  {
-    std::cout << q.front() << " ";
-    q.pop();
-  }
-  std::cout << std::endl;
-}
-
-
 
 int tttgame::computer_move()
 {
