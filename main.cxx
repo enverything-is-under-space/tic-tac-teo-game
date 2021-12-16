@@ -8,75 +8,545 @@ using namespace std;
 class tttgame
 {
     private:
-        int x[3] , y[3] , z[3];
-        queue<int> own2x,own2y,own2z;
-        queue<int> enemy2x,enemy2y,enemy2z;
+        int x[3],y[3],z[3];
+        queue<int> computerX,computerY,computerZ;
 
-        queue<int> own2xyz,enemy2xyz;
-        queue<int> empty;
+        queue<int> playerX,playerY,playerZ;
 
 
     public:
-        tttgame();
-        void setIds(int,int);
-        void setdef();
+        tttgame(int,int); //set computer & player id
+        int move(int,int);
+        int gameResultCheck();
+        int playerMove();
+        int getRoundCounter();
 
-        void check(); //check the game status is it end? draw? win?
-        void get_cell(); //print to conosle
-        void clear_lmtw(); //clear list moves to win
+        void computerInitMove(); //random move
+        void computerMove();
+        void computerCalculateMove();
+        void computerClearCaculatedMoves();
+        int translateComputerMoveCellId(char,int);
 
-        int move(int,int); //player id and cell id
+        void consoleLog();
 
-        //ai
-        void computer_initial_move(int);
-        void computer_cm(); //calculate move
-        int computer_move(); //proccess move and return a cell id for move
 };
 
+int computerId=0;
+int playerId=0;
+int roundCounter=0;
 
-
-
-
-int computer_id;
-int player_id;
-
-void tttgame::setIds(int computerid, int playerid)
+int tttgame::getRoundCounter()
 {
-    computer_id = computerid;
-    player_id = playerid;
+    return roundCounter;
 }
 
-void tttgame::setdef()
+int tttgame::playerMove()
 {
+    //return 0 means player move were successfully complete.
+    cout << endl;
+
+    cout << "Your turn: enter cell id between 1-9: ";
+    int firstMove = 0;
+    cin >> firstMove;
+
+    while(firstMove == 0 || firstMove >= 10)
+    {
+        firstMove = 0;
+        cout << "Your turn: enter cell id between 1-9: ";
+        cin >> firstMove;
+    }
+
+    if(firstMove > 0 && firstMove <=9)
+    {
+        int resultMove = move(playerId,firstMove);
+        while(resultMove)
+        {
+            cout << "Your turn: enter cell id: ";
+            cin >> firstMove;
+            if(firstMove > 0 && firstMove <=9)
+            {
+                resultMove = move(playerId,firstMove);
+            }
+        }
+        return 0;
+    }
+
+    return 1;
+}
+
+void tttgame::computerInitMove()
+{
+    //later can add some algorithms with priorities for first moves
+    srand (time(NULL));
+    int random_number = rand() % 9 + 1;
+    cout << random_number << " = randnum" << endl;
+    int result_move = move(computerId,random_number);
+
+    while(result_move && roundCounter<10)
+    {
+        cout << "[LOG] the random cell were full, i'll try again find another cell." <<endl;
+        int random_number2 = rand() % 9 + 1;
+        result_move = move(computerId,random_number2);
+    }
+}
+
+
+void tttgame::computerCalculateMove()
+{
+
+    //own X cells
+    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computerId)    computerX.push(2);
+    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == computerId)    computerX.push(1);
+    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == computerId)    computerX.push(0);
+
+    //own Y cells
+    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == computerId)    computerY.push(2);
+    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == computerId)    computerY.push(1);
+    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == computerId)    computerY.push(0);
+
+    //own Z cells
+    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == computerId)    computerZ.push(2);
+    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == computerId)    computerZ.push(1);
+    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == computerId)    computerZ.push(0);
+
+    //own XYZ1 cells
+    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == computerId)    computerZ.push(0);
+    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == computerId)    computerY.push(0);
+    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == computerId)    computerX.push(0);
+
+    //own XYZ2 cells
+    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == computerId)    computerZ.push(1);
+    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == computerId)    computerY.push(1);
+    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == computerId)    computerX.push(1);
+
+    //own XYZ3 cells
+    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == computerId)    computerZ.push(2);
+    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == computerId)    computerY.push(2);
+    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == computerId)    computerX.push(2);
+
+    //own XYZ159 cells
+    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == computerId)    computerZ.push(2);
+    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == computerId)    computerY.push(1);
+    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == computerId)    computerX.push(0);
+
+    //own XYZ357 cells
+    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == computerId)    computerZ.push(0);
+    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == computerId)    computerY.push(1);
+    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == computerId)    computerX.push(2);
+
+
+
+
+    //enemy X cells
+    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == playerId)    playerX.push(2);
+    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == playerId)    playerX.push(1);
+    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == playerId)    playerX.push(0);
+
+    //enemy Y cells
+    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == playerId)    playerY.push(2);
+    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == playerId)    playerY.push(1);
+    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == playerId)    playerY.push(0);
+
+    //enemy Z cells
+    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == playerId)    playerZ.push(2);
+    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == playerId)    playerZ.push(1);
+    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == playerId)    playerZ.push(0);
+
+    //enemy XYZ1 cells
+    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == playerId)    playerZ.push(0);
+    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == playerId)    playerY.push(0);
+    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == playerId)    playerX.push(0);
+
+    //enemy XYZ2 cells
+    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == playerId)    playerZ.push(1);
+    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == playerId)    playerY.push(1);
+    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == playerId)    playerX.push(1);
+
+    //enemy XYZ3 cells
+    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == playerId)    playerZ.push(2);
+    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == playerId)    playerY.push(2);
+    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == playerId)    playerX.push(2);
+
+    //enemy XYZ159 cells
+    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == playerId)    playerZ.push(2);
+    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == playerId)    playerY.push(1);
+    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == playerId)    playerX.push(0);
+
+    //enemy XYZ357 cells
+    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == playerId)    playerZ.push(0);
+    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == playerId)    playerY.push(1);
+    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == playerId)    playerX.push(2);
+}
+
+int tttgame::translateComputerMoveCellId(char cellChar,int cellId)
+{
+    switch(cellChar)
+    {
+        case 'x':
+        {
+            switch(cellId)
+            {
+                case 0: return 1; break;
+                case 1: return 2; break;
+                case 2: return 3; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'y':
+        {
+            switch(cellId)
+            {
+                case 0: return 4; break;
+                case 1: return 5; break;
+                case 2: return 6; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'z':
+        {
+            switch(cellId)
+            {
+                case 0: return 7; break;
+                case 1: return 8; break;
+                case 2: return 9; break;
+                default: return 0; break;
+            }
+        }break;
+
+        default: cout << "[INVALID INPUT] cellChar is " << cellChar << endl;
+            break;
+    }
+    return 0; //means error was occurapted
+}
+
+void tttgame::computerMove()
+{
+    computerCalculateMove();
+
+    bool resultMove=1;
+
+    if(computerX.empty() &&
+       computerY.empty() &&
+       computerZ.empty() &&
+       playerX.empty() &&
+       playerY.empty() &&
+       playerZ.empty())
+    {
+        computerInitMove();
+    }
+
+    while(!computerX.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('x',computerX.front());
+            resultMove = move(computerId,computerValue);
+            computerX.pop();
+    }
+
+    while(!computerY.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('y',computerY.front());
+            resultMove = move(computerId,computerValue);
+            computerY.pop();
+    }
+
+    while(!computerZ.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('z',computerZ.front());
+            resultMove = move(computerId,computerValue);
+            computerZ.pop();
+    }
+
+
+
+
+
+    while(!playerX.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('x',playerX.front());
+            resultMove = move(computerId,computerValue);
+            playerX.pop();
+    }
+
+    while(!playerY.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('y',playerY.front());
+            resultMove = move(computerId,computerValue);
+            playerY.pop();
+    }
+
+    while(!playerZ.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('z',playerZ.front());
+            resultMove = move(computerId,computerValue);
+            playerZ.pop();
+    }
+}
+
+tttgame::tttgame(int playerid,int computerid)
+{
+    playerId = playerid;
+    computerId = computerid;
+
     x[0] = x[1] = x[2] =
-            y[0] = y[1] = y[2] =
-            z[0] = z[1] = z[2] = 0;
+    y[0] = y[1] = y[2] =
+    z[0] = z[1] = z[2] = 0;
 }
 
-tttgame::tttgame()
+int tttgame::move(int playerid,int cellid)
 {
-    setdef();
+    //return 1 means error was occurapted
+    cout << playerid << "\t" << cellid<<endl;
+    if(playerid>2 || playerid<1)
+    {
+        cout << "[INVALID INPUT] player id is invalid." << endl;
+        return 1;
+    }
+    if(roundCounter>10)
+    {
+        cout << "[GAME INFO] Max rounds is 9, the game is end player " << playerid << " can't move cell " << cellid << "." << endl;
+        return 1;
+    }
+
+
+    switch (cellid)
+    {
+            case 1:
+            {
+                if(!x[0])
+                    x[0] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the x0 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 2:
+            {
+                if(!x[1])
+                    x[1] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the x1 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+
+            case 3:
+            {
+                if(!x[2])
+                    x[2] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the x2 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 4:
+            {
+                if(!y[0])
+                    y[0] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the y0 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 5:
+            {
+                if(!y[1])
+                    y[1] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the y1 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 6:
+            {
+                if(!y[2])
+                    y[2] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the y2 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 7:
+            {
+                if(!z[0])
+                    z[0] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the z0 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 8:
+            {
+                if(!z[1])
+                    z[1] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the z1 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            case 9:
+            {
+                if(!z[2])
+                    z[2] = playerid;
+                else
+                {
+                    cout <<"[DUPLICATE INPUT] the z2 cell is full."<<endl;
+                    return 1;
+                }
+            }break;
+
+
+            default:
+            {
+                cout <<"[INVALID INPUT] cell id " << cellid <<" is invalid."<<endl;
+                return 1;
+            }break;
+    }
+
+    consoleLog();
+
+    int resultMove = gameResultCheck();
+    if(!resultMove)
+        roundCounter++;
+    else
+        roundCounter = 10;
+
+
+    return 0;
 }
 
-void tttgame::clear_lmtw()
+int tttgame::gameResultCheck()
 {
-    swap( own2x, empty );swap( own2y, empty );swap( own2z, empty );
-    swap( enemy2y, empty );swap( enemy2y, empty );swap( enemy2z, empty );
+    /*returns:
+        0 means continue.
+        1 means player one won.
+        2 means player two won.
+        3 means game is draw.
+    */
+
+    //three horizontals
+    if(x[0] == x[1] && x[1] == x[2] && x[2] !=0)
+    {
+        cout<<"player "<< x[0] <<" won by raw x"<<endl;
+        return x[0];
+    }
+
+    else if(y[0] == y[1] && y[1] == y[2] && y[2] !=0)
+    {
+        cout<<"player "<< y[0] <<" won by raw y"<<endl;
+        return y[0];
+    }
+
+    else if(z[0] == z[1] && z[1] == z[2] && z[2] !=0)
+    {
+        cout<<"player "<< z[0] <<" won by raw z"<<endl;
+        return z[0];
+    }
+
+
+    //three verticals
+    else if(x[0] == y[0] && y[0] == z[0] && z[0] !=0)
+    {
+        cout<<"player "<< x[0] <<" won by raw xyz 0"<<endl;
+        return x[0];
+    }
+
+    else if(x[1] == y[1] && y[1] == z[1] && z[1] !=0)
+    {
+        cout<<"player "<< x[1] <<" won by raw xyz 1"<<endl;
+        return x[1];
+    }
+
+    else if(x[2] == y[2] && y[2] == z[2] && z[2] !=0)
+    {
+        cout<<"player "<< x[2] <<" won by raw xyz 2"<<endl;
+        return x[2];
+    }
+
+
+
+    //two X
+    else if(x[0] == y[1] && y[1] == z[2] && z[2] !=0)
+    {
+        cout<<"player "<< x[0] <<" won by raw xyz 159"<<endl;
+        return x[0];
+    }
+
+    else if(x[2] == y[1] && y[1] == z[0] && z[0] !=0)
+    {
+        cout<<"player "<< x[2] <<" won by raw xyz 357"<<endl;
+        return x[2];
+    }
+
+
+    //game equal
+    else if(x[0] && x[1] && x[2] &&
+            y[0] && y[1] && y[2] &&
+            z[0] && z[1] && z[2] !=0)
+    {
+        cout << "[GAME END] game is draw." <<endl;
+        return 3;
+    }
+
+    else
+        cout <<"game is continue"<<endl;
+    return 0;
 }
 
-
-void tttgame::get_cell()
+void tttgame::consoleLog()
 {
+    cout << endl;
+    cout << "--------------CONSOLE LOG START-------------" << endl;
     cout << "x = ["<< x[0] << "," << x[1] << "," << x[2] << "]" <<endl;
     cout << "y = ["<< y[0] << "," << y[1] << "," << y[2] << "]" <<endl;
     cout << "z = ["<< z[0] << "," << z[1] << "," << z[2] << "]" <<endl;
-}
 
 
-void tttgame::check()
-{
 
-    get_cell();
+    //fetch private queues assign to new queue becuse there is need to print all queues for print as log and if use main queues the values inside main queue will be clean it's will be make problem.
+
+
+
+
+
+    /*
+    queue<int>
+    own2x(computerX),
+    own2y(computerY),
+    own2z(computerZ),
+    enemy2x(playerX),
+    enemy2y(playerY),
+    enemy2z(playerZ);  //enemy means player , own means computer cells
+
+
+
+
+
 
     cout << "own2x:";
     while(!own2x.empty())
@@ -102,8 +572,6 @@ void tttgame::check()
     }
     cout <<endl;
 
-
-
     cout << "enemy2x:";
     while(!enemy2x.empty())
     {
@@ -126,385 +594,74 @@ void tttgame::check()
     {
             cout<<" "<<enemy2z.front();
             enemy2z.pop();
-    }
-    cout <<endl;
-
-    //three horizontal
-    if(x[0] == x[1] && x[1] == x[2] && x[2] !=0)
-        cout<<"player "<< x[0] <<" won by raw x"<<endl;
-
-    else if(y[0] == y[1] && y[1] == y[2] && y[2] !=0)
-        cout<<"player "<< y[0] <<" won by raw y"<<endl;
-
-    else if(z[0] == z[1] && z[1] == z[2] && z[2] !=0)
-        cout<<"player "<< z[0] <<" won by raw z"<<endl;
-
-
-    //three vertical
-    else if(x[0] == y[0] && y[0] == z[0] && z[0] !=0)
-        cout<<"player "<< x[0] <<" won by raw xyz 0"<<endl;
-
-    else if(x[1] == y[1] && y[1] == z[1] && z[1] !=0)
-        cout<<"player "<< x[1] <<" won by raw xyz 1"<<endl;
-
-    else if(x[2] == y[2] && y[2] == z[2] && z[2] !=0)
-        cout<<"player "<< x[2] <<" won by raw xyz 2"<<endl;
-
-
-
-    //two X
-    else if(x[0] == y[1] && y[1] == z[2] && z[2] !=0)
-        cout<<"player "<< x[0] <<" won by raw xyz 159"<<endl;
-
-    else if(x[2] == y[1] && y[1] == z[0] && z[0] !=0)
-        cout<<"player "<< x[2] <<" won by raw xyz 357"<<endl;
-
-
-    //game equal
-    else if(x[0] && x[1] && x[2] &&   y[0] && y[1] && y[2] &&   z[0] && z[1] && z[2] !=0 )
-    {
-        cout << "game is draw and cells were:" <<endl;
-        get_cell();
-    }
-
-    else
-        cout <<"game is continue"<<endl;
-
-}
-
-
-
-int tttgame::move(int player, int cell)
-{
-        //return 1 means error was occuropted
-    cout << "[INFO] player: " << player << " cell: " << cell << " requested to move."<<endl;
-    switch (cell)
-    {
-            case 1:
-            {
-                if(x[0]==0)
-                    x[0] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the x0 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 2:
-            {
-                if(x[1]==0)
-                    x[1] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the x1 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-
-            case 3:
-            {
-                if(x[2]==0)
-                    x[2] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the x2 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 4:
-            {
-                if(y[0]==0)
-                    y[0] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the y0 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 5:
-            {
-                if(y[1]==0)
-                    y[1] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the y1 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 6:
-            {
-                if(y[2]==0)
-                    y[2] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the y2 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 7:
-            {
-                if(z[0]==0)
-                    z[0] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the z0 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 8:
-            {
-                if(z[1]==0)
-                    z[1] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the z1 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            case 9:
-            {
-                if(z[2]==0)
-                    z[2] = player;
-                else
-                {
-                    cout <<"[WARN] ------ the z2 cell is full."<<endl;
-                    return 1;
-                }
-                computer_cm();
-            }break;
-
-
-            default:
-            {
-                cout <<"[WARN] ------ the cell id is not correct."<<endl;
-                computer_cm();
-                return 1;
-            }break;
-    }
-    return 0;
-}
-
-
-
-
-void tttgame::computer_initial_move(int computerid)
-{
-    srand (time(NULL));
-    int random_number = rand() % 9 + 1;
-    cout << "random number is "<< random_number << endl;
-    int result_move = move(computerid,random_number);
-
-    while(result_move)
-    {
-        cout << "the random cell were full, i'll try again find another cell." <<endl;
-        int random_number2 = rand() % 9 + 1;
-        cout << "random number2 is "<< random_number2 << endl;
-        result_move = move(computerid,random_number2);
-    }
-}
-
-
-
-
-
-
-void tttgame::computer_cm()
-{
-
-    //own X cells
-    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computer_id)    own2x.push(2);
-    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == computer_id)    own2x.push(1);
-    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == computer_id)    own2x.push(0);
-
-    //own Y cells
-    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == computer_id)    own2y.push(2);
-    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == computer_id)    own2y.push(1);
-    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == computer_id)    own2y.push(0);
-
-    //own Z cells
-    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == computer_id)    own2z.push(2);
-    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == computer_id)    own2z.push(1);
-    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == computer_id)    own2z.push(0);
-
-    //enemy X cells
-    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == player_id)    enemy2x.push(2);
-    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == player_id)    enemy2x.push(1);
-    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == player_id)    enemy2x.push(0);
-
-    //enemy Y cells
-    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == player_id)    enemy2y.push(2);
-    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == player_id)    enemy2y.push(1);
-    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == player_id)    enemy2y.push(0);
-
-    //enemy Z cells
-    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == player_id)    enemy2z.push(2);
-    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == player_id)    enemy2z.push(1);
-    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == player_id)    enemy2z.push(0);
-
-
-
-    //own XYZ1 cells
-    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == computer_id)    own2z.push(0);
-    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == computer_id)    own2y.push(0);
-    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == computer_id)    own2x.push(0);
-
-    //own XYZ2 cells
-    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == computer_id)    own2z.push(1);
-    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == computer_id)    own2y.push(1);
-    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == computer_id)    own2x.push(1);
-
-    //own XYZ3 cells
-    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == computer_id)    own2z.push(2);
-    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == computer_id)    own2y.push(2);
-    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == computer_id)    own2x.push(2);
-
-
-
-
-    //enemy XYZ1 cells
-    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == player_id)    enemy2z.push(0);
-    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == player_id)    enemy2y.push(0);
-    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == player_id)    enemy2x.push(0);
-
-    //enemy XYZ2 cells
-    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == player_id)    enemy2z.push(1);
-    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == player_id)    enemy2y.push(1);
-    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == player_id)    enemy2x.push(1);
-
-    //enemy XYZ3 cells
-    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == player_id)    enemy2z.push(2);
-    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == player_id)    enemy2y.push(2);
-    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == player_id)    enemy2x.push(2);
-
-
-
-
-    //enemy XYZ159 cells
-    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == player_id)    enemy2z.push(2);
-    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == player_id)    enemy2y.push(1);
-    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == player_id)    enemy2x.push(0);
-
-    //enemy XYZ357 cells
-    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == player_id)    enemy2z.push(0);
-    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == player_id)    enemy2y.push(1);
-    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == player_id)    enemy2x.push(2);
-//     check();
-}
-
-
-
-int tttgame::computer_move()
-{
-    //return 0 means no error
+    }*/
+    cout << "--------------CONSOLE LOG END-------------" << endl;
     cout << endl;
-    cout << "[INFO] computer move funtion has been started." << endl;
 
-    bool status_move=false; // maybe this is reverse
-    computer_cm();
-
-
-    while (!enemy2x.empty())
-    {
-        std::cout << enemy2x.front() << "=====================================";
-        enemy2x.pop();
-    }
-
-
-
-//   while(!enemy2x.empty())
-//     {
-//         if(enemy2x.empty())
-//             break;
-//         cout << "------------ new info enemy2x is: " << enemy2x.front() << endl;
-//         enemy2x.pop();
-//     }
-
-
-
-//     //Goal is win
-//     while(!own2x.empty() && move_not_accepted==true)
-//     {
-//         move_not_accepted = move(computer_id,own2x.front());
-//         cout << "[INFO] status move own2x cell " << own2x.front() << " is accepted? " << move_not_accepted << endl;
-//         own2x.pop();
-//     }
-//
-//     if(own2x.empty() && own2y.empty() && own2z.empty() && own2xyz.empty() && enemy2x.empty() &&enemy2y.empty() && enemy2z.empty() && enemy2xyz.empty())
-//     {
-//         cout << "[INFO] i've no idea so lets move random." << endl;
-//         computer_initial_move(computer_id);
-//     }
-   return 0;
 }
 
 
-
- // ---------------------- main
 
 
 
 int main()
 {
+    int playerId = 2 , computerId = 1;
+    bool playerTurn = false ,computerTurn = true;
 
-   int computer_id = 2;
-   int player_id = 1;
-   int avaiable_rounds = 9;
+    cout << "do you want player first? y/n: ";
+    char wannaPlayFirst; cin >> wannaPlayFirst;
 
-   tttgame b;
+    if(wannaPlayFirst == 'y' || wannaPlayFirst == 'Y')
+    {
+        playerId=1;
+        computerId=2;
+        playerTurn = true;
+        computerTurn = false;
+    }
 
-   char who_is_first_player;
-   cout << "Do you want play first? y/n: ";
+    tttgame game(playerId,computerId); //set ids , catch first move
+    for(int i=1;i<=9;i++)
+    {
+            if(game.getRoundCounter()<=9)
+            {
+                if(playerTurn && !computerTurn)
+                {
+                    game.playerMove();
+                    playerTurn = false;
+                    computerTurn = true;
+                }
+                else if(computerTurn && !playerTurn)
+                {
+                    game.computerMove();
+                    computerTurn = false;
+                    playerTurn = true;
+                }
+                else
+                    cout << "problem in manage turns with flags." << endl;
+            }
+            else
+                break;
+    }
 
-   cin >> who_is_first_player;
-   if(who_is_first_player =='n')
-   {
-       cout<<"[INFO] the computer id set to 1."<<endl;
-       computer_id = 1;
-       player_id = 2;
-       b.computer_initial_move(computer_id);
-       b.setIds(computer_id,player_id);
-       avaiable_rounds--;
-   }
-   else
-   {
-       cout<<"[INFO] the computer id set to 2."<<endl;
-       b.setIds(computer_id,player_id);
-   }
 
-   int player_move;
-   while(avaiable_rounds>=0)
-   {
-       cout << "-------------------------------------------------------------- next " <<endl;
-       cout << "[INPUT] please enter your cell to move:";
-       cin >> player_move;
-       b.move(player_id,player_move);
-       avaiable_rounds--;
-       b.computer_move();
-   }
+
+    //NOTE: remove move in document after playerid=2 its depend to intialer
+
+
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
