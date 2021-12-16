@@ -410,11 +410,13 @@ void tttgame::consoleLog()
     cout << "y = ["<< y[0] << "," << y[1] << "," << y[2] << "]" <<endl;
     cout << "z = ["<< z[0] << "," << z[1] << "," << z[2] << "]" <<endl;
 
-    //these blow codes used for knows how          COMPUTER ANALYSIS         the game for debug.
-
-    //also enemy means player , own means computer.
-
-    //NOTE fetch private queues assign to new queue becuse there is need to print all queues for print as log and if use main queues the values inside main queue will be clean it's will be made problem.
+    /*NOTES:
+        * these blow codes used for knows how          COMPUTER ANALYSIS         the game for debug.
+        * also enemy means player , own means computer.
+        
+        * fetch private queues assign to new queue becuse there is need to print all queues for print as log and if use main queues the values 
+        inside main queue will be clean it's will be made problem.
+    */
 
   /*queue<int>
     own2x(computerX),own2y(computerY),own2z(computerZ),enemy2x(playerX),enemy2y(playerY),enemy2z(playerZ);
