@@ -80,7 +80,7 @@ void tttgame::computerInitMove()
 
     while(result_move && roundCounter<10)
     {
-        cout << "[LOG] the random cell were full, i'll try again find another cell." <<endl;
+        cout << "[COMPUER MOVE INFO] the random cell were full, i'll try again find another cell." <<endl;
         int random_number2 = rand() % 9 + 1;
         result_move = move(computerId,random_number2);
     }
@@ -89,6 +89,17 @@ void tttgame::computerInitMove()
 
 void tttgame::computerCalculateMove()
 {
+
+    /*these numbers pushing to array X , Y , Z  are like
+     * tic tac teo cells
+     * [1,2,3]
+     * [4,5,6]
+     * [7,8,9]
+     * then this function check arrays and push number of array is possible to win or lose
+     * the priority is win then lose/draw.
+     *
+     * also 'own' means computer Cells and 'enemy' means player.
+     */
 
     //own X cells
     if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computerId)    computerX.push(3);
