@@ -25,6 +25,7 @@ class tttgame
         void computerMove();
         void computerCalculateMove();
         void computerClearCaculatedMoves();
+        int translateComputerMoveCellId(char,int);
 
         void consoleLog();
 
@@ -91,89 +92,131 @@ void tttgame::computerCalculateMove()
 {
 
     //own X cells
-    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computerId)    computerX.push(3);
-    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == computerId)    computerX.push(2);
-    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == computerId)    computerX.push(1);
+    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computerId)    computerX.push(2);
+    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == computerId)    computerX.push(1);
+    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == computerId)    computerX.push(0);
 
     //own Y cells
-    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == computerId)    computerY.push(6);
-    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == computerId)    computerY.push(5);
-    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == computerId)    computerY.push(4);
+    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == computerId)    computerY.push(2);
+    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == computerId)    computerY.push(1);
+    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == computerId)    computerY.push(0);
 
     //own Z cells
-    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == computerId)    computerZ.push(9);
-    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == computerId)    computerZ.push(8);
-    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == computerId)    computerZ.push(7);
+    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == computerId)    computerZ.push(2);
+    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == computerId)    computerZ.push(1);
+    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == computerId)    computerZ.push(0);
 
     //own XYZ1 cells
-    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == computerId)    computerZ.push(7);
-    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == computerId)    computerY.push(4);
-    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == computerId)    computerX.push(1);
+    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == computerId)    computerZ.push(0);
+    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == computerId)    computerY.push(0);
+    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == computerId)    computerX.push(0);
 
     //own XYZ2 cells
-    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == computerId)    computerZ.push(8);
-    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == computerId)    computerY.push(5);
-    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == computerId)    computerX.push(2);
+    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == computerId)    computerZ.push(1);
+    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == computerId)    computerY.push(1);
+    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == computerId)    computerX.push(1);
 
     //own XYZ3 cells
-    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == computerId)    computerZ.push(9);
-    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == computerId)    computerY.push(6);
-    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == computerId)    computerX.push(3);
+    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == computerId)    computerZ.push(2);
+    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == computerId)    computerY.push(2);
+    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == computerId)    computerX.push(2);
 
     //own XYZ159 cells
-    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == computerId)    computerZ.push(9);
-    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == computerId)    computerY.push(5);
-    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == computerId)    computerX.push(1);
+    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == computerId)    computerZ.push(2);
+    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == computerId)    computerY.push(1);
+    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == computerId)    computerX.push(0);
 
     //own XYZ357 cells
-    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == computerId)    computerZ.push(7);
-    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == computerId)    computerY.push(5);
-    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == computerId)    computerX.push(3);
+    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == computerId)    computerZ.push(0);
+    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == computerId)    computerY.push(1);
+    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == computerId)    computerX.push(2);
 
 
 
 
     //enemy X cells
-    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == playerId)    playerX.push(3);
-    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == playerId)    playerX.push(2);
-    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == playerId)    playerX.push(1);
+    if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == playerId)    playerX.push(2);
+    if(x[0] == x[2] && x[2] != 0 && x[1] == 0 && x[0] == playerId)    playerX.push(1);
+    if(x[1] == x[2] && x[2] != 0 && x[0] == 0 && x[1] == playerId)    playerX.push(0);
 
     //enemy Y cells
-    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == playerId)    playerY.push(6);
-    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == playerId)    playerY.push(5);
-    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == playerId)    playerY.push(4);
+    if(y[0] == y[1] && y[1] != 0 && y[2] == 0 && y[0] == playerId)    playerY.push(2);
+    if(y[0] == y[2] && y[2] != 0 && y[1] == 0 && y[0] == playerId)    playerY.push(1);
+    if(y[1] == y[2] && y[2] != 0 && y[0] == 0 && y[1] == playerId)    playerY.push(0);
 
     //enemy Z cells
-    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == playerId)    playerZ.push(9);
-    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == playerId)    playerZ.push(8);
-    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == playerId)    playerZ.push(7);
+    if(z[0] == z[1] && z[1] != 0 && z[2] == 0 && z[0] == playerId)    playerZ.push(2);
+    if(z[0] == z[2] && z[2] != 0 && z[1] == 0 && z[0] == playerId)    playerZ.push(1);
+    if(z[1] == z[2] && z[2] != 0 && z[0] == 0 && z[1] == playerId)    playerZ.push(0);
 
     //enemy XYZ1 cells
-    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == playerId)    playerZ.push(7);
-    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == playerId)    playerY.push(4);
-    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == playerId)    playerX.push(1);
+    if(x[0] == y[0] && y[0] != 0 && z[0] == 0 && x[0] == playerId)    playerZ.push(0);
+    if(x[0] == z[0] && z[0] != 0 && y[0] == 0 && x[0] == playerId)    playerY.push(0);
+    if(y[0] == z[0] && z[0] != 0 && x[0] == 0 && y[0] == playerId)    playerX.push(0);
 
     //enemy XYZ2 cells
-    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == playerId)    playerZ.push(8);
-    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == playerId)    playerY.push(5);
-    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == playerId)    playerX.push(2);
+    if(x[1] == y[1] && y[1] != 0 && z[1] == 0 && x[1] == playerId)    playerZ.push(1);
+    if(x[1] == z[1] && z[1] != 0 && y[1] == 0 && x[1] == playerId)    playerY.push(1);
+    if(y[1] == z[1] && z[1] != 0 && x[1] == 0 && y[1] == playerId)    playerX.push(1);
 
     //enemy XYZ3 cells
-    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == playerId)    playerZ.push(9);
-    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == playerId)    playerY.push(6);
-    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == playerId)    playerX.push(3);
+    if(x[2] == y[2] && y[2] != 0 && z[2] == 0 && x[2] == playerId)    playerZ.push(2);
+    if(x[2] == z[2] && z[2] != 0 && y[2] == 0 && x[2] == playerId)    playerY.push(2);
+    if(y[2] == z[2] && z[2] != 0 && x[2] == 0 && y[2] == playerId)    playerX.push(2);
 
     //enemy XYZ159 cells
-    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == playerId)    playerZ.push(9);
-    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == playerId)    playerY.push(5);
-    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == playerId)    playerX.push(1);
+    if(x[0] == y[1] && y[1] != 0 && z[2] == 0 && x[0] == playerId)    playerZ.push(2);
+    if(x[0] == z[2] && z[2] != 0 && y[1] == 0 && x[0] == playerId)    playerY.push(1);
+    if(y[1] == z[2] && z[2] != 0 && x[0] == 0 && y[1] == playerId)    playerX.push(0);
 
     //enemy XYZ357 cells
-    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == playerId)    playerZ.push(7);
-    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == playerId)    playerY.push(5);
-    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == playerId)    playerX.push(3);
+    if(x[2] == y[1] && y[1] != 0 && z[0] == 0 && x[2] == playerId)    playerZ.push(0);
+    if(x[2] == z[0] && z[0] != 0 && y[1] == 0 && x[2] == playerId)    playerY.push(1);
+    if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == playerId)    playerX.push(2);
 }
 
+int tttgame::translateComputerMoveCellId(char cellChar,int cellId)
+{
+    switch(cellChar)
+    {
+        case 'x':
+        {
+            switch(cellId)
+            {
+                case 0: return 1; break;
+                case 1: return 2; break;
+                case 2: return 3; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'y':
+        {
+            switch(cellId)
+            {
+                case 0: return 4; break;
+                case 1: return 5; break;
+                case 2: return 6; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'z':
+        {
+            switch(cellId)
+            {
+                case 0: return 7; break;
+                case 1: return 8; break;
+                case 2: return 9; break;
+                default: return 0; break;
+            }
+        }break;
+
+        default: cout << "[INVALID INPUT] cellChar is " << cellChar << endl;
+            break;
+    }
+    return 0; //means error was occurapted
+}
 
 void tttgame::computerMove()
 {
@@ -193,38 +236,47 @@ void tttgame::computerMove()
 
     while(!computerX.empty() && resultMove)
     {
-            resultMove = move(computerId,computerX.front());
+            const int computerValue = translateComputerMoveCellId('x',computerX.front());
+            resultMove = move(computerId,computerValue);
             computerX.pop();
     }
 
     while(!computerY.empty() && resultMove)
     {
-            resultMove = move(computerId,computerY.front());
+            const int computerValue = translateComputerMoveCellId('y',computerY.front());
+            resultMove = move(computerId,computerValue);
             computerY.pop();
     }
 
     while(!computerZ.empty() && resultMove)
     {
-            resultMove = move(computerId,computerZ.front());
+            const int computerValue = translateComputerMoveCellId('z',computerZ.front());
+            resultMove = move(computerId,computerValue);
             computerZ.pop();
     }
 
 
+
+
+
     while(!playerX.empty() && resultMove)
     {
-            resultMove = move(computerId,playerX.front());
+            const int computerValue = translateComputerMoveCellId('x',playerX.front());
+            resultMove = move(computerId,computerValue);
             playerX.pop();
     }
 
     while(!playerY.empty() && resultMove)
     {
-            resultMove = move(computerId,playerY.front());
+            const int computerValue = translateComputerMoveCellId('y',playerY.front());
+            resultMove = move(computerId,computerValue);
             playerY.pop();
     }
 
     while(!playerZ.empty() && resultMove)
     {
-            resultMove = move(computerId,playerZ.front());
+            const int computerValue = translateComputerMoveCellId('z',playerZ.front());
+            resultMove = move(computerId,computerValue);
             playerZ.pop();
     }
 }
