@@ -9,9 +9,9 @@ class tttgame
 {
     private:
         int x[3],y[3],z[3];
-        queue<int> computerX,computerY,computerZ,computerXYZ;
+        queue<int> computerX,computerY,computerZ;
 
-        queue<int> playerX,playerY,playerZ,playerXYZ;
+        queue<int> playerX,playerY,playerZ;
 
 
     public:
@@ -19,11 +19,13 @@ class tttgame
         int move(int,int);
         int gameResultCheck();
         int playerMove();
+        int getRoundCounter();
 
         void computerInitMove(); //random move
         void computerMove();
         void computerCalculateMove();
         void computerClearCaculatedMoves();
+        int translateComputerMoveCellId(char,int);
 
         void consoleLog();
 
@@ -32,6 +34,11 @@ class tttgame
 int computerId=0;
 int playerId=0;
 int roundCounter=0;
+
+int tttgame::getRoundCounter()
+{
+    return roundCounter;
+}
 
 int tttgame::playerMove()
 {
@@ -64,7 +71,6 @@ int tttgame::playerMove()
         return 0;
     }
 
-
     return 1;
 }
 
@@ -73,9 +79,10 @@ void tttgame::computerInitMove()
     //later can add some algorithms with priorities for first moves
     srand (time(NULL));
     int random_number = rand() % 9 + 1;
+    cout << random_number << " = randnum" << endl;
     int result_move = move(computerId,random_number);
 
-    while(result_move)
+    while(result_move && roundCounter<10)
     {
         cout << "[LOG] the random cell were full, i'll try again find another cell." <<endl;
         int random_number2 = rand() % 9 + 1;
@@ -83,16 +90,9 @@ void tttgame::computerInitMove()
     }
 }
 
-void tttgame::computerClearCaculatedMoves()
-{
-    queue<int> emptyqueue;
-    swap( computerX, emptyqueue );swap( computerY, emptyqueue );swap( computerZ, emptyqueue );
-    swap( playerX, emptyqueue );swap( playerY, emptyqueue );swap( playerZ, emptyqueue );
-}
 
 void tttgame::computerCalculateMove()
 {
-    computerClearCaculatedMoves();
 
     //own X cells
     if(x[0] == x[1] && x[1] != 0 && x[2] == 0 && x[0] == computerId)    computerX.push(2);
@@ -178,19 +178,110 @@ void tttgame::computerCalculateMove()
     if(y[1] == z[0] && z[0] != 0 && x[2] == 0 && y[1] == playerId)    playerX.push(2);
 }
 
+int tttgame::translateComputerMoveCellId(char cellChar,int cellId)
+{
+    switch(cellChar)
+    {
+        case 'x':
+        {
+            switch(cellId)
+            {
+                case 0: return 1; break;
+                case 1: return 2; break;
+                case 2: return 3; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'y':
+        {
+            switch(cellId)
+            {
+                case 0: return 4; break;
+                case 1: return 5; break;
+                case 2: return 6; break;
+                default: return 0; break;
+            }
+        }break;
+
+        case 'z':
+        {
+            switch(cellId)
+            {
+                case 0: return 7; break;
+                case 1: return 8; break;
+                case 2: return 9; break;
+                default: return 0; break;
+            }
+        }break;
+
+        default: cout << "[INVALID INPUT] cellChar is " << cellChar << endl;
+            break;
+    }
+    return 0; //means error was occurapted
+}
+
 void tttgame::computerMove()
 {
     computerCalculateMove();
 
-    //sort move cells
-    //make new queue
-    //insert popular cell ids in head of the queue
-    //send move receive resultMove
-    //check resultMove if its ok done if not ok
-    //pick another move
-    //if all moves were full call inital moves
+    bool resultMove=1;
+
+    if(computerX.empty() &&
+       computerY.empty() &&
+       computerZ.empty() &&
+       playerX.empty() &&
+       playerY.empty() &&
+       playerZ.empty())
+    {
+        computerInitMove();
+    }
+
+    while(!computerX.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('x',computerX.front());
+            resultMove = move(computerId,computerValue);
+            computerX.pop();
+    }
+
+    while(!computerY.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('y',computerY.front());
+            resultMove = move(computerId,computerValue);
+            computerY.pop();
+    }
+
+    while(!computerZ.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('z',computerZ.front());
+            resultMove = move(computerId,computerValue);
+            computerZ.pop();
+    }
 
 
+
+
+
+    while(!playerX.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('x',playerX.front());
+            resultMove = move(computerId,computerValue);
+            playerX.pop();
+    }
+
+    while(!playerY.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('y',playerY.front());
+            resultMove = move(computerId,computerValue);
+            playerY.pop();
+    }
+
+    while(!playerZ.empty() && resultMove)
+    {
+            const int computerValue = translateComputerMoveCellId('z',playerZ.front());
+            resultMove = move(computerId,computerValue);
+            playerZ.pop();
+    }
 }
 
 tttgame::tttgame(int playerid,int computerid)
@@ -198,31 +289,21 @@ tttgame::tttgame(int playerid,int computerid)
     playerId = playerid;
     computerId = computerid;
 
-
     x[0] = x[1] = x[2] =
     y[0] = y[1] = y[2] =
     z[0] = z[1] = z[2] = 0;
-
-
-    if(playerId)
-    {
-        playerMove();
-    }
-    else
-    {
-        computerMove();
-    }
 }
 
 int tttgame::move(int playerid,int cellid)
 {
     //return 1 means error was occurapted
+    cout << playerid << "\t" << cellid<<endl;
     if(playerid>2 || playerid<1)
     {
         cout << "[INVALID INPUT] player id is invalid." << endl;
         return 1;
     }
-    if(roundCounter>=10)
+    if(roundCounter>10)
     {
         cout << "[GAME INFO] Max rounds is 9, the game is end player " << playerid << " can't move cell " << cellid << "." << endl;
         return 1;
@@ -342,16 +423,19 @@ int tttgame::move(int playerid,int cellid)
 
             default:
             {
-                cout <<"[INVALID INPUT] cell id is invalid."<<endl;
+                cout <<"[INVALID INPUT] cell id " << cellid <<" is invalid."<<endl;
                 return 1;
             }break;
     }
+
+    consoleLog();
 
     int resultMove = gameResultCheck();
     if(!resultMove)
         roundCounter++;
     else
         roundCounter = 10;
+
 
     return 0;
 }
@@ -364,7 +448,6 @@ int tttgame::gameResultCheck()
         2 means player two won.
         3 means game is draw.
     */
-
 
     //three horizontals
     if(x[0] == x[1] && x[1] == x[2] && x[2] !=0)
@@ -437,7 +520,7 @@ int tttgame::gameResultCheck()
 
 void tttgame::consoleLog()
 {
-
+    cout << endl;
     cout << "--------------CONSOLE LOG START-------------" << endl;
     cout << "x = ["<< x[0] << "," << x[1] << "," << x[2] << "]" <<endl;
     cout << "y = ["<< y[0] << "," << y[1] << "," << y[2] << "]" <<endl;
@@ -447,6 +530,11 @@ void tttgame::consoleLog()
 
     //fetch private queues assign to new queue becuse there is need to print all queues for print as log and if use main queues the values inside main queue will be clean it's will be make problem.
 
+
+
+
+
+    /*
     queue<int>
     own2x(computerX),
     own2y(computerY),
@@ -506,8 +594,9 @@ void tttgame::consoleLog()
     {
             cout<<" "<<enemy2z.front();
             enemy2z.pop();
-    }
+    }*/
     cout << "--------------CONSOLE LOG END-------------" << endl;
+    cout << endl;
 
 }
 
@@ -518,20 +607,46 @@ void tttgame::consoleLog()
 int main()
 {
     int playerId = 2 , computerId = 1;
+    bool playerTurn = false ,computerTurn = true;
 
+    cout << "do you want player first? y/n: ";
+    char wannaPlayFirst; cin >> wannaPlayFirst;
 
-    cout << "do you want player first? y/n";
-    char whosTurn; cin >> whosTurn;
-
-    if(whosTurn == 'y' || whosTurn == 'Y')
+    if(wannaPlayFirst == 'y' || wannaPlayFirst == 'Y')
     {
         playerId=1;
         computerId=2;
+        playerTurn = true;
+        computerTurn = false;
     }
 
     tttgame game(playerId,computerId); //set ids , catch first move
+    for(int i=1;i<=9;i++)
+    {
+            if(game.getRoundCounter()<=9)
+            {
+                if(playerTurn && !computerTurn)
+                {
+                    game.playerMove();
+                    playerTurn = false;
+                    computerTurn = true;
+                }
+                else if(computerTurn && !playerTurn)
+                {
+                    game.computerMove();
+                    computerTurn = false;
+                    playerTurn = true;
+                }
+                else
+                    cout << "problem in manage turns with flags." << endl;
+            }
+            else
+                break;
+    }
 
-    //NOTE: remove move in doc after playerid=2 its depend to intialer
+
+
+    //NOTE: remove move in document after playerid=2 its depend to intialer
 
 
 
